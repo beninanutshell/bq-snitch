@@ -105,6 +105,10 @@ def send_email_alert(sendgrid_api_key, sender, query, job_id, user_email, cc_lis
         to_emails=user_email,
         subject='BigQuery job crossed threshold',
         html_content=email_body)
+
+    if user_email in cc_list:
+        cc_list.remove(user_email)
+
     for cc_email in cc_list:
         message.personalizations[0].add_cc(Email(cc_email))
     try:
