@@ -17,12 +17,13 @@ def bq_informer(data, context):
     slicing_index = resource_name.rfind('/') + 1
     job_id = resource_name[slicing_index:]
     job = client.get_job(job_id)
-    total_tera_bytes_billed = job.total_bytes_billed / 1000000000000
+    bytes_per_tera_bytes = 2**40
+    total_tera_bytes_billed = job.total_bytes_billed / bytes_per_tera_bytes
     total_cost = total_tera_bytes_billed * tera_bytes_cost
     print("Total cost: " + str(total_cost))
     if total_cost >= alert_threshold:
         print("Job violated cost threshold limit")
-        giga_bytes_billed = total_tera_bytes_billed * 1000
+        giga_bytes_billed = total_tera_bytes_billed * 1024
         fields_to_retrieve = config['FIELDS_TO_RETRIEVE']
         customize_details = ""
         for field in fields_to_retrieve:
