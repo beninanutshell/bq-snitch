@@ -17,7 +17,9 @@ def bq_informer(data, context):
     slicing_index = resource_name.rfind('/') + 1
     job_id = resource_name[slicing_index:]
     job = client.get_job(job_id)
-    bytes_per_tera_bytes = 2**40
+    project = job.project
+    location = job.location
+    bytes_per_tera_bytes = 2 ** 40
     total_tera_bytes_billed = job.total_bytes_billed / bytes_per_tera_bytes
     total_cost = total_tera_bytes_billed * tera_bytes_cost
     print("Total cost: " + str(total_cost))
@@ -37,9 +39,8 @@ def bq_informer(data, context):
             web_api_token = config['SLACK_WEB_API_TOKEN']
             dest_channel = config['SLACK_WEB_API_DESTINATION_CHANNEL']
 
-            alert_channels.send_slack_alert(wekbook_url, web_api_token, dest_channel, job.query, job_id, job.user_email,
-                                            total_cost,
-                                            giga_bytes_billed, customize_details)
+            alert_channels.send_slack_alert(wekbook_url, web_api_token, dest_channel, job.query, job_id, project,
+                                            location, job.user_email, total_cost, giga_bytes_billed, customize_details)
 
         email_alert = config['EMAIL_ALERT']
         if email_alert:
@@ -47,7 +48,7 @@ def bq_informer(data, context):
             sender = config['EMAIL_SENDER']
             cc_list = config['EMAIL_CC']
             sendgrid_api_key = config['SENDGRID_API_KEY']
-            alert_channels.send_email_alert(sendgrid_api_key, sender, job.query, job_id, job.user_email, cc_list,
-                                            total_cost, giga_bytes_billed, customize_details)
+            alert_channels.send_email_alert(sendgrid_api_key, sender, job.query, job_id, project, location,
+                                            job.user_email, cc_list, total_cost, giga_bytes_billed, customize_details)
     else:
         print("Job didn't violate cost threshold limit")

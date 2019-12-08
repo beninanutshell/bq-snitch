@@ -6,8 +6,8 @@ from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import *
 
 
-def send_slack_alert(wekbook_url, web_api_token, dest_channel, query, job_id, user_email, cost, gigabytes_billed,
-                     customize_details):
+def send_slack_alert(wekbook_url, web_api_token, dest_channel, query, job_id, project,
+                     location, user_email, cost, gigabytes_billed, customize_details):
     try:
         message_blocks = [
             {
@@ -42,6 +42,14 @@ def send_slack_alert(wekbook_url, web_api_token, dest_channel, query, job_id, us
                     {
                         "type": "mrkdwn",
                         "text": "Query Cost *$" + str(truncate(cost, 2)) + "*"
+                    },
+                    {
+                        "type": "mrkdwn",
+                        "text": "Project *" + str(project) + "*"
+                    },
+                    {
+                        "type": "mrkdwn",
+                        "text": "Location *" + str(location) + "*"
                     }
                 ]
             }
@@ -92,13 +100,20 @@ def send_slack_alert_web_api(web_api_token, dest_channel, message_blocks, user_e
         print(e)
 
 
-def send_email_alert(sendgrid_api_key, sender, query, job_id, user_email, cc_list, total_cost, giga_bytes_billed,
+def send_email_alert(sendgrid_api_key, sender, query, job_id, project, location, user_email, cc_list, total_cost,
+                     giga_bytes_billed,
                      details):
+    tab = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+    total_cost_trun = str(truncate(total_cost, 2))
+    giga_bytes_billed_trun = str(truncate(giga_bytes_billed, 2))
     email_body = "Hey, <br> The following query has processed large amount of data:" \
                  + "<br><strong>" + query + "</strong>" \
-                 + "<br>Job ID <strong>" + job_id + "</strong>  Query User <strong>" + user_email + "</strong>" \
-                 + "<br>" + "Gigabytes Billed <strong>" + str(truncate(giga_bytes_billed, 2)) \
-                 + "</strong>   Query Cost <strong>$" + str(truncate(total_cost, 2)) + "</strong>"
+                 + "<br>Job ID <strong>" + job_id + "</strong>" \
+                 + tab + "Query User <strong>" + user_email + "</strong>" \
+                 + "<br>" + "Gigabytes Billed <strong>" + giga_bytes_billed_trun + "</strong>" \
+                 + tab + "Query Cost <strong>$" + total_cost_trun + "</strong> " \
+                 + "<br>Project <strong>" + project + "</strong>" \
+                 + tab + "Location <strong>" + location + "</strong>"
 
     message = Mail(
         from_email=sender,
