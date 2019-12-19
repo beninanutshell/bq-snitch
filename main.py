@@ -17,6 +17,8 @@ def bq_informer(data, context):
     slicing_index = resource_name.rfind('/') + 1
     job_id = resource_name[slicing_index:]
     job = client.get_job(job_id)
+    if not hasattr(job, 'total_bytes_billed'):
+        return
     project = job.project
     location = job.location
     bytes_per_tera_bytes = 2 ** 40
